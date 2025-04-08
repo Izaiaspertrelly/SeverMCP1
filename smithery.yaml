@@ -1,13 +1,19 @@
-name: Sever MCP
-start:
-  cmd: node index.js
-  env:
-    PORT: 3000
-    API_KEY: "{{ apiKey }}"
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
 
-options:
-  apiKey:
-    type: string
-    description: Chave de acesso à API do MCP
-    default: ""
-    sensitive: true
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    {}
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |
+    (config) => {
+      return {
+        command: "node",
+        args: ["index.js"],
+        env: {
+          API_KEY: "sua-chave-supersecreta"
+        }
+      };
+    }
