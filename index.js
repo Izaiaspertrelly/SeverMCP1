@@ -1,41 +1,44 @@
-
 const express = require('express');
-const bodyParser = require('body-parser');
-require('dotenv').config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+const apiKey = process.env.API_KEY;
 
-app.use((req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || authHeader !== process.env.API_KEY) {
-    return res.status(403).json({ error: 'Unauthorized' });
+// Middleware de autenticação
+function authenticateApiKey(req, res, next) {
+  if (!apiKey) {
+    console.log('🔓 API authentication disabled. No API key is set.');
+    return next(); // Não exige chave se nenhuma estiver configurada
   }
+
+  const providedKey = req.headers['x-api-key'];
+
+  if (!providedKey) {
+    return res.status(401).json({ error: 'API key is required' });
+  }
+
+  if (providedKey !== apiKey) {
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+
   next();
+}
+
+app.use(express.json());
+
+// Exemplo de ferramenta: Somar
+app.get('/tools/somar', authenticateApiKey, (req, res) => {
+  const a = parseFloat(req.query.a);
+  const b = parseFloat(req.query.b);
+
+  if (isNaN(a) || isNaN(b)) {
+    return res.status(400).json({ error: 'Parâmetros inválidos. Envie números em "a" e "b".' });
+  }
+
+  const resultado = a + b;
+  res.json({ result: resultado });
 });
 
-app.get('/tools/somar', (req, res) => {
-  const { a, b } = req.query;
-  const result = Number(a) + Number(b);
-  res.json({ result });
-});
-
-app.get('/.well-known/ai-plugin.json', (req, res) => {
-  res.json({
-    schema_version: "v1",
-    name: "MCP Server Example",
-    description: "Exemplo simples de servidor MCP com autenticação",
-    tools: [{
-      name: "somar",
-      endpoint: "/tools/somar",
-      method: "GET",
-      description: "Soma dois números. Ex: /tools/somar?a=1&b=2"
-    }]
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor MCP rodando na porta ${PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 MCP Server rodando em http://localhost:${port}`);
 });
