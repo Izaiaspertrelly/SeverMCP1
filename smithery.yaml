@@ -1,14 +1,13 @@
+name: Sever MCP
+start:
+  cmd: node index.js
+  env:
+    PORT: 3000
+    API_KEY: "{{ apiKey }}"
 
-startCommand:
-  type: stdio
-  configSchema: {}
-  commandFunction: |
-    (config) => {
-      return {
-        command: "node",
-        args: ["index.js"],
-        env: {
-          API_KEY: "sua-chave-supersecreta"
-        }
-      };
-    }
+options:
+  apiKey:
+    type: string
+    description: Chave de acesso à API do MCP
+    default: ""
+    sensitive: true
