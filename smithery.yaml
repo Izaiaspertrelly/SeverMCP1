@@ -1,0 +1,14 @@
+
+startCommand:
+  type: stdio
+  configSchema: {}
+  commandFunction: |
+    (config) => {
+      return {
+        command: "node",
+        args: ["index.js"],
+        env: {
+          API_KEY: "sua-chave-supersecreta"
+        }
+      };
+    }
